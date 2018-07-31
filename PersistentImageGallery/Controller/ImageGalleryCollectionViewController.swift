@@ -10,10 +10,51 @@ import UIKit
 
 private let reuseIdentifier = "Cell"
 
+
+
 class ImageGalleryCollectionViewController: UICollectionViewController {
     
-    var tableViewIndex: Int? 
+    // MARK: - Cache
+    var imageStore: ImageStore!
+    
+    // MARK: - Model
+    var imageGalleryModel: ImageGallery? {
+        get {
+            var temporaryURLModel = [Int: [URL: Double]]()
+            if imageGallery != nil {
+                for index in imageGallery.indices {
+                    let urlInfo = imageGallery[index]
+                    temporaryURLModel[index] = [urlInfo.url!: Double(urlInfo.aspectRatio!)]
+                }
+                return ImageGallery(urlInfo: temporaryURLModel)
+            }
+            return nil
+        }
+        set {
+           // print("Model set with: \(newValue)")
+            var tempImageGallery = [(url: URL?, aspectRatio: CGFloat?)]()
+            if let sortedGalleryModel = newValue?.urlInfo.sorted(by: { $0.key < $1.key }) {
+                
+                for index in sortedGalleryModel.indices {
+                    let urlTuple = sortedGalleryModel[index]
+                    if let url = urlTuple.value.keys.first {
+                        if let aspectRatio = urlTuple.value.values.first {
+                            tempImageGallery.append((url: url, aspectRatio: CGFloat(aspectRatio)))
+                            print("Temp gallery count: \(tempImageGallery.count)")
+                        }
+                    }
+                }
+            }
+            imageGallery = tempImageGallery
+            print("Successfully set up imageGallery with count: \(imageGallery.count)")
+            print("Hope imageGallery reloads data")
+            collectionView!.reloadData()
+        }
+    }
+    
+    var document: ImageGalleryDocument?
 
+    // MARK: - Passed off info from model
     var imageGallery: [(url: URL?, aspectRatio: CGFloat?)]! {
         didSet {
             collectionView?.reloadData()
@@ -23,6 +64,33 @@ class ImageGalleryCollectionViewController: UICollectionViewController {
     deinit {
         print("ImageGalleryCollectionVC has left the heap")
     }
+    
+    // MARK: - Actions
+    private func save() {
+        var temporaryURLModel = [Int: [URL: Double]]()
+        for index in imageGallery.indices {
+            let urlInfo = imageGallery[index]
+            print(urlInfo)
+            temporaryURLModel[index] = [urlInfo.url!: Double(urlInfo.aspectRatio!)]
+        }
+        document?.imageGallery = ImageGallery(urlInfo: temporaryURLModel)
+        
+        if document?.imageGallery != nil {
+            document?.updateChangeCount(.done)
+            print("Updated change count")
+        }
+    }
+    
+    @IBAction func close(_ sender: UIBarButtonItem) {
+        save()
+        if document?.imageGallery != nil {
+            document?.thumbnail = collectionView?.snapshot
+        }
+        dismiss(animated: true) {
+            self.document?.close()
+        }
+    }
+    
     
     private var flowLayout: UICollectionViewFlowLayout? {
         return collectionView?.collectionViewLayout as? UICollectionViewFlowLayout
@@ -38,22 +106,36 @@ class ImageGalleryCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print("Image gallery count: \(imageGallery?.count ?? 0)")
+        print("View did load")
         collectionView?.dropDelegate = self
         collectionView?.dragDelegate = self
+        collectionView?.dragInteractionEnabled = true 
         
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.changeWidthScale(byReactingTo:)))
         collectionView?.addGestureRecognizer(pinch)
         
         
-        self.navigationItem.rightBarButtonItem = splitViewController?.displayModeButtonItem
+        // self.navigationItem.rightBarButtonItem = splitViewController?.displayModeButtonItem
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         print("CollectionView will appear")
-        collectionView?.reloadData()
+        
+        document?.open { success in
+            
+            if success {
+                self.title = self.document?.localizedName
+                self.imageGalleryModel = self.document?.imageGallery
+                // print("Tried to open doc and set model", self.document?.imageGallery)
+                self.collectionView?.reloadData()
+            } else {
+                print("Error opening document")
+            }
+        }
+        
+//        collectionView?.reloadData()
         flowLayout?.invalidateLayout()
     }
     
@@ -89,6 +171,12 @@ class ImageGalleryCollectionViewController: UICollectionViewController {
             if let cell = sender as? GalleryCollectionViewCell, let indexPath = collectionView?.indexPath(for: cell) {
                 if let imageVC = segue.destination.contentsOfController as? ImageViewController {
                     imageVC.imageURL = cell.imageURL
+                    imageVC.title = self.title! + " Image"
+                    save()
+                    if document?.imageGallery != nil {
+                        document?.thumbnail = collectionView?.snapshot
+                    }
+                    self.document?.close()
                 }
             }
         default:
@@ -116,7 +204,9 @@ class ImageGalleryCollectionViewController: UICollectionViewController {
     
         // Configure the cell
         if let imageCell = cell as? GalleryCollectionViewCell {
-            imageCell.image = nil 
+            imageCell.image = nil
+            
+            
             imageCell.imageURL = imageGallery?[indexPath.item].url
         }
     
@@ -171,7 +261,6 @@ extension ImageGalleryCollectionViewController: UICollectionViewDropDelegate {
             if let sourceIndexPath = item.sourceIndexPath {
                 // item confirmed to come locally
                 if let image = item.dragItem.localObject as? UIImage {
-//                    let aspectRatio = image.size.width / image.size.height
                     let itemToBeInserted = imageGallery?[sourceIndexPath.item]
                     collectionView.performBatchUpdates({
                         self.imageGallery?.remove(at: sourceIndexPath.item)
@@ -216,9 +305,7 @@ extension ImageGalleryCollectionViewController: UICollectionViewDropDelegate {
             }
         }
     }
-    
 
-    
 }
 
 extension ImageGalleryCollectionViewController: UICollectionViewDelegateFlowLayout {
@@ -226,52 +313,12 @@ extension ImageGalleryCollectionViewController: UICollectionViewDelegateFlowLayo
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let aspectRatio = imageGallery?[indexPath.item].aspectRatio
-        let cellWidth = CGFloat(200.0) * scaleForWidthOfCells
-        let cellHeight = cellWidth / aspectRatio!
-        return CGSize(width: cellWidth, height: cellHeight)
+        if let aspectRatio = imageGallery?[indexPath.item].aspectRatio {
+            let cellWidth = CGFloat(200.0) * scaleForWidthOfCells
+            let cellHeight = cellWidth / aspectRatio
+            return CGSize(width: cellWidth, height: cellHeight)
+        }
+        return CGSize(width: 200, height: 200)
     }
 }
-
-
-
-
-
-
-
-
-
-
-// MARK: UICollectionViewDelegate
-
-/*
- // Uncomment this method to specify if the specified item should be highlighted during tracking
- override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
- return true
- }
- */
-
-/*
- // Uncomment this method to specify if the specified item should be selected
- override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
- return true
- }
- */
-
-/*
- // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
- override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
- return false
- }
- 
- override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
- return false
- }
- 
- override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
- 
- }
- */
-
-
 

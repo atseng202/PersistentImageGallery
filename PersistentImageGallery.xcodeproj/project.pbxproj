@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		3F7BE00A203BB94400568B6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE009203BB94400568B6E /* AppDelegate.swift */; };
 		3F7BE00C203BB94400568B6E /* DocumentBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE00B203BB94400568B6E /* DocumentBrowserViewController.swift */; };
-		3F7BE00E203BB94400568B6E /* DocumentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE00D203BB94400568B6E /* DocumentViewController.swift */; };
 		3F7BE010203BB94400568B6E /* ImageGalleryDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE00F203BB94400568B6E /* ImageGalleryDocument.swift */; };
 		3F7BE013203BB94400568B6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3F7BE011203BB94400568B6E /* Main.storyboard */; };
 		3F7BE015203BB94400568B6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F7BE014203BB94400568B6E /* Assets.xcassets */; };
@@ -19,13 +18,13 @@
 		3F7BE025203BBAF800568B6E /* ImageGalleryCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE021203BBAF800568B6E /* ImageGalleryCollectionViewController.swift */; };
 		3F7BE026203BBAF800568B6E /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE022203BBAF800568B6E /* Utilities.swift */; };
 		3F7BE02E203BBFC500568B6E /* ImageGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE02D203BBFC500568B6E /* ImageGallery.swift */; };
+		3F7BE032203E4DC200568B6E /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7BE031203E4DC100568B6E /* ImageStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		3F7BE006203BB94400568B6E /* PersistentImageGallery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PersistentImageGallery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F7BE009203BB94400568B6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3F7BE00B203BB94400568B6E /* DocumentBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentBrowserViewController.swift; sourceTree = "<group>"; };
-		3F7BE00D203BB94400568B6E /* DocumentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentViewController.swift; sourceTree = "<group>"; };
 		3F7BE00F203BB94400568B6E /* ImageGalleryDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGalleryDocument.swift; sourceTree = "<group>"; };
 		3F7BE012203BB94400568B6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		3F7BE014203BB94400568B6E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -36,6 +35,7 @@
 		3F7BE021203BBAF800568B6E /* ImageGalleryCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryCollectionViewController.swift; sourceTree = "<group>"; };
 		3F7BE022203BBAF800568B6E /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		3F7BE02D203BBFC500568B6E /* ImageGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGallery.swift; sourceTree = "<group>"; };
+		3F7BE031203E4DC100568B6E /* ImageStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,7 +68,6 @@
 		3F7BE008203BB94400568B6E /* PersistentImageGallery */ = {
 			isa = PBXGroup;
 			children = (
-				3F7BE00D203BB94400568B6E /* DocumentViewController.swift */,
 				3F7BE02B203BBF6800568B6E /* Controller */,
 				3F7BE02C203BBF8000568B6E /* Model */,
 				3F7BE011203BB94400568B6E /* Main.storyboard */,
@@ -95,6 +94,7 @@
 				3F7BE01F203BBAF800568B6E /* GalleryCollectionViewCell.swift */,
 				3F7BE021203BBAF800568B6E /* ImageGalleryCollectionViewController.swift */,
 				3F7BE020203BBAF800568B6E /* ImageViewController.swift */,
+				3F7BE031203E4DC100568B6E /* ImageStore.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -184,9 +184,9 @@
 				3F7BE02E203BBFC500568B6E /* ImageGallery.swift in Sources */,
 				3F7BE010203BB94400568B6E /* ImageGalleryDocument.swift in Sources */,
 				3F7BE023203BBAF800568B6E /* GalleryCollectionViewCell.swift in Sources */,
-				3F7BE00E203BB94400568B6E /* DocumentViewController.swift in Sources */,
 				3F7BE00C203BB94400568B6E /* DocumentBrowserViewController.swift in Sources */,
 				3F7BE025203BBAF800568B6E /* ImageGalleryCollectionViewController.swift in Sources */,
+				3F7BE032203E4DC200568B6E /* ImageStore.swift in Sources */,
 				3F7BE024203BBAF800568B6E /* ImageViewController.swift in Sources */,
 				3F7BE026203BBAF800568B6E /* Utilities.swift in Sources */,
 				3F7BE00A203BB94400568B6E /* AppDelegate.swift in Sources */,

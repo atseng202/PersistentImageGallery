@@ -10,9 +10,9 @@ import Foundation
 
 struct ImageGallery: Codable {
     
-    var urlInfo: [Int: [URL:Int]]
+    var urlInfo = [Int: [URL:Double]]()
     
-    init(urlInfo: [Int: [URL: Int]]) {
+    init(urlInfo: [Int: [URL: Double]]) {
         self.urlInfo = urlInfo
     }
     

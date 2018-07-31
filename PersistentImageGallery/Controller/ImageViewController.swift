@@ -8,9 +8,7 @@
 
 import UIKit
 
-class ImageViewController: UIViewController, UIScrollViewDelegate
-{
-
+class ImageViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var spinner: UIActivityIndicatorView!
     
     @IBOutlet weak var scrollView: UIScrollView! {
@@ -61,15 +59,43 @@ class ImageViewController: UIViewController, UIScrollViewDelegate
     
     private func fetchImage() {
         if let url = imageURL {
-            spinner.startAnimating()
-            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                let urlContents = try? Data(contentsOf: url)
-                DispatchQueue.main.async {
-                    if let imageData = urlContents, url == self?.imageURL {
-                        self?.image = UIImage(data: imageData)
+            let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 60)
+            if let cachedResponse = imageCache.cachedResponse(for: request) {
+                let cachedImage = UIImage(data: cachedResponse.data)
+                self.image = cachedImage
+                print("ScrolledImageView set its data from cache")
+                return
+            }
+            
+            spinner?.startAnimating()
+            let task = URLSession.shared.dataTask(with: url, completionHandler: { (data, response, error) in
+                if let error = error {
+                    print(error)
+                    return
+                }
+                
+                DispatchQueue.main.async { [weak self] in
+                    if let downloadedImage = UIImage(data: data!), url == self?.imageURL {
+                        imageCache.storeCachedResponse(CachedURLResponse.init(response: response!, data: data!), for: request)
+                        self?.image = downloadedImage
+                        print("ScrollableImageView set the downloaded image")
+                    } else {
+                        print("Image could not be loaded for this VC")
+                        self?.spinner?.stopAnimating()
                     }
                 }
-            }
+            })
+            task.resume()
+            // spinner.startAnimating()
+            
+//            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+//                let urlContents = try? Data(contentsOf: url)
+//                DispatchQueue.main.async {
+//                    if let imageData = urlContents, url == self?.imageURL {
+//                        self?.image = UIImage(data: imageData)
+//                    }
+//                }
+//            }
 
         }
     }
